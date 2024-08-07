@@ -1,1 +1,1 @@
-# TaskMaster
+TaskMaster is a productivity application designed to streamline task management and prioritize your work efficiently. Built with Rust, this app offers a robust command-line interface, enabling users to effortlessly manage tasks and set priorities, ensuring that your most important tasks are tackled first. Dive into TaskMaster and elevate your productivity to new heights.
