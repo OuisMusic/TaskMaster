@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::env;
 use std::io::{self, Write};
 
 struct Task {
@@ -10,86 +9,86 @@ struct Task {
 
 struct TaskManager {
     tasks: HashMap<u32, Task>,
-    next_id: u32,
+    next_task_id: u32,
 }
 
 impl TaskManager {
-    fn new() -> TaskManager {
-        TaskManager {
+    fn new() -> Self {
+        Self {
             tasks: HashMap::new(),
-            next_id: 1,
+            next_task_id: 1,
         }
     }
 
     fn add_task(&mut self, title: String, priority: u8) {
-        let task = Task {
-            id: self.next_id,
+        let new_task = Task {
+            id: self.next_task_id,
             title,
             priority,
         };
-        self.tasks.insert(self.next_id, task);
-        self.next_id += 1;
+        self.tasks.insert(self.next_task_id, new_task);
+        self.next_task_id += 1;
     }
 
-    fn list_tasks(&self) {
+    fn list_all_tasks(&self) {
         for task in self.tasks.values() {
-            println!("{}: {} (Priority: {})", task.id, task.title, task.priority);
+            println!("ID: {} | Title: {} | Priority: {}", task.id, task.title, task.priority);
         }
     }
 
-    fn remove_task(&mut self, id: u32) {
-        self.tasks.remove(&id);
+    fn remove_task_by_id(&mut self, task_id: u32) {
+        self.tasks.remove(&task_id);
     }
 }
 
 struct PriorityManager {}
 
 impl PriorityManager {
-    fn adjust_priority(task: &mut Task, new_priority: u8) {
+    fn update_task_priority(task: &mut Task, new_priority: u8) {
         task.priority = new_priority;
     }
 }
 
 fn main() {
-    let mut task_manager = TaskManager::new();
+    let mut manager = TaskManager::new();
 
     loop {
-        println!("Please choose an option:");
-        println!("1. Add a task");
-        println!("2. List all tasks");
-        println!("3. Remove a task");
+        println!("TaskMaster Options:");
+        println!("1. Add Task");
+        println!("2. List Tasks");
+        println!("3. Remove Task");
         println!("4. Exit");
 
-        let mut choice = String::new();
-        io::stdin().read_line(&mut choice).expect("Failed to read line");
+        let mut user_choice = String::new();
+        io::stdin().read_line(&mut user_choice).unwrap_or_else(|_| panic!("Failed to read input"));
 
-        match choice.trim() {
+        match user_choice.trim() {
             "1" => {
-                println!("Enter task title:");
+                println!("Task Title:");
                 let mut title = String::new();
-                io::stdin().read_line(&mut title).expect("Failed to read line");
+                io::stdin().read_line(&mut title).unwrap_or_else(|_| panic!("Failed to read title"));
                 let title = title.trim().to_string();
 
-                println!("Enter task priority (1-5):");
-                let mut priority_str = String::new();
-                io::stdin().read_line(&mut priority_str).expect("Failed to read line");
-                let priority: u8 = priority_str.trim().parse().expect("Please type a number!");
+                println!("Task Priority (1-5):");
+                let mut priority_string = String::new();
+                io::stdin().read_line(&mut priority_string).unwrap_or_else(|_| panic!("Failed to read priority"));
+                let priority: u8 = priority_string.trim().parse().expect("Priority should be a number 1-5");
 
-                task_manager.add_task(title, priority);
+                manager.add_task(title, priority);
             },
-            "2" => task_manager.list_tasks(),
+            "2" => manager.list_all_tasks(),
             "3" => {
-                println!("Enter the ID of the task to remove:");
-                let mut id_str = String::new();
-                io::stdin().read_line(&mut id_str).expect("Failed to read line");
-                let id: u32 = id_str.trim().parse().expect("Please type a number!");
+                println!("Task ID to Remove:");
+                let mut id_string = String::new();
+                io::stdin().read_line(&mut id_string).unwrap_or_else(|_| panic!("Failed to read ID"));
+                let id: u32 = id_string.trim().parse().expect("ID should be a number");
 
-                task_manager.remove_task(id);
+                manager.remove_task_by_id(id);
             },
             "4" => break,
-            _ => println!("Invalid option, try again."),
+            _ => println!("Invalid Option, Try Again."),
         }
-
+        
         println!("\n");
     }
 }
