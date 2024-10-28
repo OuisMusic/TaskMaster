@@ -2,60 +2,60 @@ use std::env;
 use std::fmt::{self, Display, Formatter};
 
 #[derive(Debug)]
-struct UtilityError {
+struct TaskMasterError {
     message: String,
 }
 
-impl UtilityError {
-    fn new(message: &str) -> UtilityError {
-        UtilityError {
+impl TaskMasterError {
+    fn new(message: &str) -> TaskMasterError {
+        TaskMasterError {
             message: message.to_string(),
         }
     }
 }
 
-impl Display for UtilityError {
+impl Display for TaskMasterError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.message)
     }
 }
 
-impl std::error::Error for UtilityError {}
+impl std::error::Error for TaskMasterError {}
 
-fn get_env_var(key: &str) -> Result<String, UtilityError> {
-    env::var(key).map_err(|_| UtilityError::new(&format!("Missing env variable: {}", key)))
+fn fetch_environment_variable(variable_name: &str) -> Result<String, TaskMasterError> {
+    env::var(variable_name).map_err(|_| TaskMasterError::new(&format!("Missing environment variable: {}", variable_name)))
 }
 
-fn validate_non_empty(data: &str) -> Result<(), UtilityError> {
-    if data.trim().is_empty() {
-        Err(UtilityError::new("Data cannot be empty."))
+fn ensure_non_empty_string(input: &str) -> Result<(), TaskMasterError> {
+    if input.trim().is_empty() {
+        Err(TaskMasterError::new("Input cannot be empty."))
     } else {
         Ok(())
     }
 }
 
-fn format_date(date: &str) -> Result<String, UtilityError> {
-    let parts: Vec<&str> = date.split('-').collect();
-    if parts.len() != 3 {
-        Err(UtilityError::new("Date must be in the format YYYY-MM-DD."))
+fn transform_date_to_standard_format(date_str: &str) -> Result<String, TaskMasterError> {
+    let date_components: Vec<&str> = date_str.split('-').collect();
+    if date_components.len() != 3 {
+        Err(TaskMasterError::new("Date must be in the format YYYY-MM-DD."))
     } else {
-        Ok(format!("{}/{}/{}", parts[2], parts[1], parts[0]))
+        Ok(format!("{}/{}/{}", date_components[2], date_components[1], date_components[0]))
     }
 }
 
 fn main() {
-    match get_env_var("EXAMPLE_ENV_VAR") {
+    match fetch_environment_variable("EXAMPLE_ENV_VAR") {
         Ok(value) => println!("Environment variable value: {}", value),
-        Err(e) => println!("{}", e),
+        Err(error) => println!("{}", error),
     }
 
-    match validate_non_empty("Test") {
+    match ensure_non_empty_string("Test") {
         Ok(_) => println!("Validation passed."),
-        Err(e) => println!("{}", e),
+        Err(error) => println!("{}", error),
     }
 
-    match format_date("2023-01-02") {
+    match transform_date_to_standard_format("2023-01-02") {
         Ok(formatted_date) => println!("Formatted date: {}", formatted_date),
-        Err(e) => println!("{}", e),
+        Err(error) => println!("{}", error),
     }
 }
