@@ -1,5 +1,7 @@
 use std::env;
 use std::fmt::{self, Display, Formatter};
+use reqwest; // Assume you've added `reqwest` to your `Cargo.toml`
+use tokio; // Assume you've added `tokio` as your async runtime
 
 #[derive(Debug)]
 struct TaskMasterError {
@@ -22,10 +24,12 @@ impl Display for TaskMasterError {
 
 impl std::error::Error for TaskMasterError {}
 
-fn fetch_environment_variable(variable_name: &str) -> Result<String, TaskMasterError> {
+// Consider making this function async if it was to make actual API calls
+async fn fetch_environment_variable(variable_name: &str) -> Result<String, TaskMasterError> {
     env::var(variable_name).map_err(|_| TaskMasterError::new(&format!("Missing environment variable: {}", variable_name)))
 }
 
+// This remains unchanged as it doesn't involve external API calls
 fn ensure_non_empty_string(input: &str) -> Result<(), TaskMasterError> {
     if input.trim().is_empty() {
         Err(TaskMasterError::new("Input cannot be empty."))
@@ -34,6 +38,7 @@ fn ensure_non_empty_string(input: &str) -> Result<(), TaskMasterError> {
     }
 }
 
+// This remains unchanged as it doesn't involve external API calls
 fn transform_date_to_standard_format(date_str: &str) -> Result<String, TaskMasterError> {
     let date_components: Vec<&str> = date_str.split('-').collect();
     if date_components.len() != 3 {
@@ -43,12 +48,15 @@ fn transform_date_to_standard_format(date_str: &str) -> Result<String, TaskMaste
     }
 }
 
-fn main() {
-    match fetch_environment_variable("EXAMPLE_ENV_VAR") {
+// Example async main using Tokio runtime
+#[tokio::main]
+async fn main() {
+    match fetch_environment_variable("EXAMPLE_ENV_VAR").await {
         Ok(value) => println!("Environment variable value: {}", value),
         Err(error) => println!("{}", error),
     }
 
+    // These calls are synchronous and unchanged
     match ensure_non_empty_string("Test") {
         Ok(_) => println!("Validation passed."),
         Err(error) => println!("{}", error),
