@@ -12,8 +12,18 @@ const runWasmApp = async () => {
     return;
   }
 
-  const result = productivityFunction();
-  console.log('Result from Rust:', result);
+  const tasksRaw = process.env.TASKS || "";
+  const tasks = tasksRaw.split(",").map(task => task.trim()).filter(task => task);
+
+  if (tasks.length === 0) {
+    console.error('Please define at least one task in your .env file using the TASKS variable, separated by commas for multiple tasks.');
+    return;
+  }
+
+  tasks.forEach(task => {
+    const result = productivityFunction(task);
+    console.log(`Result from Rust for task "${task}":`, result);
+  });
 };
 
 runWasmApp().catch(console.error);
