@@ -6,45 +6,44 @@ import PriorityManager from './PriorityManager';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const serverPort = process.env.PORT || 3000;
 
 app.use(express.json());
 
-interface AppState {
-    tasks: any[];
-    priorities: any[];
+interface ApplicationState {
+    taskList: any[];
+    priorityList: any[];
 }
 
-const state: AppState = {
-    tasks: [],
-    priorities: [],
+const appState: ApplicationState = {
+    taskList: [],
+    priorityList: [],
 };
 
-const taskManager = new TaskManager();
-
-const priorityManager = new PriorityManager();
+const taskHandler = new TaskManager();
+const priorityHandler = new PriorityManager();
 
 app.post('/tasks', (req, res) => {
     const { task } = req.body;
     try {
-        const newTask = taskManager.addTask(task);
-        state.tasks.push(newTask);
-        res.status(201).json(newTask);
+        const addedTask = taskHandler.addTask(task);
+        appState.taskList.push(addedTask);
+        res.status(201).json(addedTask);
     } catch (error) {
         res.status(400).send(error.message);
     }
 });
 
 app.put('/tasks/:id/priority', (req, res) => {
-    const { id } = req.params;
+    const taskId = req.params.id;
     const { priority } = req.body;
 
     try {
-        priorityManager.setPriority(id, priority);
-        const task = state.tasks.find(t => t.id === id);
-        if (task) {
-            task.priority = priority;
-            res.json(task);
+        priorityHandler.setTaskPriority(taskId, priority);
+        const targetedTask = appState.taskList.find(t => t.id === taskId);
+        if (targetedTask) {
+            targetedTask.priority = priority;
+            res.json(targetedTask);
         } else {
             res.status(404).send('Task not found');
         }
@@ -53,6 +52,6 @@ app.put('/tasks/:id/priority', (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+app.listen(serverPort, () => {
+    console.log(`Server is running on port ${serverPort}`);
 });
